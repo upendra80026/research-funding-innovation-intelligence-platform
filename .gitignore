@@ -3,4 +3,4 @@ __pycache__/
 .env
 .vscode/
 node_modules/
-venv/
+venv/backend/test.db
