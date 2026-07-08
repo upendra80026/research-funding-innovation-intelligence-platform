@@ -4,6 +4,7 @@ from app.db.database import engine, Base
 from app.models import user
 from app.api.auth import routes as auth_routes
 from app.api.profile import routes as profile_routes
+from app.api.funding import routes as funding_routes
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +29,11 @@ app.include_router(
     profile_routes.router,
     prefix="/api/profile",
     tags=["Profile"]
+)
+app.include_router(
+    funding_routes.router,
+    prefix="/api/funding",
+    tags=["Funding"]
 )
 
 
