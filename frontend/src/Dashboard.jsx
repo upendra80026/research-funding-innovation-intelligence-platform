@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import PublicationTrend from "./PublicationTrend";
 
 function Dashboard({ token, onLogout }) {
   const [profile, setProfile] = useState(null);
@@ -51,6 +52,8 @@ function Dashboard({ token, onLogout }) {
           <p><strong>Role:</strong> {profile.role}</p>
         </div>
       )}
+
+      <PublicationTrend />
 
       <hr style={{ margin: "24px 0" }} />
 
