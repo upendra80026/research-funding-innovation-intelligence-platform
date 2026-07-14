@@ -170,3 +170,50 @@
   line-height: 1.5;
   margin-top: 8px;
 }
+/* ===== EMERGING TOPICS ===== */
+.topics-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.topic-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: var(--paper);
+  font-family: var(--font-body);
+}
+
+.topic-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-navy);
+  text-transform: capitalize;
+}
+
+.topic-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--slate);
+  background: var(--paper-white);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.topic-chip.new {
+  border-color: var(--signal-teal);
+  background: var(--signal-teal-light);
+}
+
+.topic-chip.new .topic-name {
+  color: var(--signal-teal);
+}
+
+.topic-chip.growing {
+  border-color: var(--amber);
+  background: var(--amber-light);
+}

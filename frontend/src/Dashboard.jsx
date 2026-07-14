@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PublicationTrend from "./PublicationTrend";
+import EmergingTopics from "./EmergingTopics";
 import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
@@ -87,6 +88,11 @@ function Dashboard({ token, onLogout }) {
           <h3>Publication Trend</h3>
           <p className="dash-card-subtitle">Your research output over time</p>
           <PublicationTrend />
+        </div>
+        <div className="dash-card">
+          <h3>Emerging Topics</h3>
+          <p className="dash-card-subtitle">Trending keywords from recent research</p>
+          <EmergingTopics />
         </div>
 
         <div className="dash-card">

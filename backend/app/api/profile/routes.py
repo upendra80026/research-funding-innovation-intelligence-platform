@@ -10,7 +10,12 @@ from app.crud.user import get_user_by_email
 
 from app.schemas.publication import PublicationCreate, PublicationResponse
 from app.schemas.patent import PatentCreate, PatentResponse
-from app.crud.publication import create_publication, get_publications_by_profile, get_publication_trend
+from app.crud.publication import (
+    create_publication,
+    get_publications_by_profile,
+    get_publication_trend,
+    get_emerging_topics,
+)
 from app.crud.patent import create_patent, get_patents_by_profile
 
 router = APIRouter()
@@ -78,6 +83,11 @@ def list_publications(
 @router.get("/publications/trend")
 def publication_trend(db: Session = Depends(get_db)):
     return get_publication_trend(db)
+
+
+@router.get("/publications/emerging-topics")
+def emerging_topics(db: Session = Depends(get_db)):
+    return get_emerging_topics(db)
 
 
 @router.post("/patents", response_model=PatentResponse)

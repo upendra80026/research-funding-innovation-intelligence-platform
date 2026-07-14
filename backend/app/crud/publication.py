@@ -1,3 +1,6 @@
+import re
+from collections import defaultdict
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.publication import Publication
@@ -36,3 +39,64 @@ def get_publication_trend(db: Session):
     )
 
     return [{"year": year if year else "Unknown", "count": count} for year, count in results]
+
+
+STOPWORDS = {
+    "the", "and", "for", "with", "using", "based", "from", "into", "study",
+    "analysis", "review", "approach", "towards", "via", "of", "on", "in",
+    "to", "a", "an", "is", "are", "new", "novel", "improved", "toward",
+    "system", "systems", "model", "models", "method", "methods", "framework"
+}
+
+
+def _extract_words(title: str):
+    words = re.findall(r"[a-zA-Z]+", title.lower())
+    return [w for w in words if len(w) > 2 and w not in STOPWORDS]
+
+
+def get_emerging_topics(db: Session, top_n: int = 8):
+    """
+    Mines keywords from publication titles and compares their frequency
+    in the most recent year against all prior years to surface emerging
+    research topics.
+    """
+    publications = db.query(Publication.title, Publication.year).all()
+
+    if not publications:
+        return []
+
+    word_year_counts = defaultdict(lambda: defaultdict(int))
+    years_seen = set()
+
+    for title, year in publications:
+        if not title:
+            continue
+        year_key = year if year else "Unknown"
+        years_seen.add(year_key)
+        for word in _extract_words(title):
+            word_year_counts[word][year_key] += 1
+
+    numeric_years = [y for y in years_seen if str(y).isdigit()]
+    if not numeric_years:
+        return []
+
+    latest_year = max(numeric_years, key=lambda y: int(y))
+
+    scored_topics = []
+    for word, year_counts in word_year_counts.items():
+        recent_count = year_counts.get(latest_year, 0)
+        prior_count = sum(c for y, c in year_counts.items() if y != latest_year)
+
+        if recent_count == 0:
+            continue
+
+        score = recent_count - prior_count
+        scored_topics.append({
+            "topic": word,
+            "recent_mentions": recent_count,
+            "prior_mentions": prior_count,
+            "status": "new" if prior_count == 0 else ("growing" if score > 0 else "steady"),
+        })
+
+    scored_topics.sort(key=lambda t: (t["recent_mentions"], t["status"] == "new"), reverse=True)
+    return scored_topics[:top_n]
