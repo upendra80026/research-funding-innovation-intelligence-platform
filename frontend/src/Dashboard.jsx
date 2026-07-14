@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PublicationTrend from "./PublicationTrend";
+import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
   const [profile, setProfile] = useState(null);
@@ -42,49 +43,81 @@ function Dashboard({ token, onLogout }) {
     fetchFunding();
   }, [token]);
 
+  const formatRole = (role) => {
+    if (!role) return "";
+    return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   return (
-    <div style={{ maxWidth: "500px", margin: "60px auto", fontFamily: "sans-serif" }}>
-      <h2>Dashboard</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {profile && (
-        <div>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Role:</strong> {profile.role}</p>
+    <div className="dash-page">
+      {/* NAVBAR */}
+      <div className="dash-navbar">
+        <div className="dash-brand">
+          Research Funding &amp; <span className="highlight">Innovation Intelligence</span>
         </div>
-      )}
-
-      <PublicationTrend />
-
-      <hr style={{ margin: "24px 0" }} />
-
-      <h3>Recommended Funding</h3>
-      {fundingError && <p style={{ color: "gray" }}>{fundingError}</p>}
-
-      {!fundingError && funding.length === 0 && (
-        <p style={{ color: "gray" }}>No matching funding opportunities right now.</p>
-      )}
-
-      {funding.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            border: "1px solid #444",
-            borderRadius: "8px",
-            padding: "12px",
-            marginBottom: "10px",
-          }}
-        >
-          <h4 style={{ margin: "0 0 6px 0" }}>{item.title}</h4>
-          <p style={{ margin: "2px 0", fontSize: "14px" }}><strong>Source:</strong> {item.source}</p>
-          <p style={{ margin: "2px 0", fontSize: "14px" }}><strong>Amount:</strong> {item.amount}</p>
-          <p style={{ margin: "2px 0", fontSize: "14px" }}><strong>Deadline:</strong> {item.deadline}</p>
-          <p style={{ margin: "2px 0", fontSize: "14px" }}>{item.description}</p>
+        <div className="dash-nav-right">
+          {profile && (
+            <span className="dash-role-badge">{formatRole(profile.role)}</span>
+          )}
+          <button className="dash-logout" onClick={onLogout}>
+            Logout
+          </button>
         </div>
-      ))}
+      </div>
 
-      <button onClick={onLogout} style={{ marginTop: "20px", padding: "8px 16px" }}>
-        Logout
-      </button>
+      {/* CONTENT */}
+      <div className="dash-content">
+        <div className="dash-welcome">
+          <h1>Welcome back{profile ? `, ${profile.email.split("@")[0]}` : ""}</h1>
+          <p>Here's what's happening across your funding, research and patent landscape.</p>
+        </div>
+
+        {error && <p className="dash-error">{error}</p>}
+
+        {profile && (
+          <div className="dash-card">
+            <h3>Your Profile</h3>
+            <p className="dash-card-subtitle">Account details</p>
+            <p><strong>Email:</strong> {profile.email}</p>
+            <p><strong>Role:</strong> {formatRole(profile.role)}</p>
+          </div>
+        )}
+
+        <div className="dash-card">
+          <h3>Publication Trend</h3>
+          <p className="dash-card-subtitle">Your research output over time</p>
+          <PublicationTrend />
+        </div>
+
+        <div className="dash-card">
+          <h3>Recommended Funding</h3>
+          <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
+
+          {fundingError && <p className="dash-empty">{fundingError}</p>}
+
+          {!fundingError && funding.length === 0 && (
+            <p className="dash-empty">No matching funding opportunities right now.</p>
+          )}
+
+          {funding.length > 0 && (
+            <div className="funding-grid">
+              {funding.map((item) => (
+                <div key={item.id} className="funding-item">
+                  <h4>{item.title}</h4>
+                  <div className="funding-meta">
+                    <span className="funding-tag">{item.source}</span>
+                    <span className="funding-amount">{item.amount}</span>
+                  </div>
+                  <p style={{ fontSize: "13px", color: "var(--slate)" }}>
+                    <strong>Deadline:</strong> {item.deadline}
+                  </p>
+                  <p className="funding-desc">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

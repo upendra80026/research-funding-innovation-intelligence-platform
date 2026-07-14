@@ -22,21 +22,35 @@ function PublicationTrend() {
   }, []);
 
   return (
-    <div style={{ marginTop: "24px" }}>
-      <h3>Publication Trend</h3>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div>
+      {error && <p className="dash-error">{error}</p>}
 
       {!error && data.length === 0 && (
-        <p style={{ color: "gray" }}>No publication data yet.</p>
+        <p className="dash-empty">No publication data yet.</p>
       )}
 
       {data.length > 0 && (
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data}>
-            <XAxis dataKey="year" stroke="#ccc" />
-            <YAxis allowDecimals={false} stroke="#ccc" />
-            <Tooltip />
-            <Bar dataKey="count" fill="#8884d8" radius={[4, 4, 0, 0]} />
+            <XAxis
+              dataKey="year"
+              stroke="#5B6578"
+              tick={{ fontFamily: "Inter", fontSize: 12 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              stroke="#5B6578"
+              tick={{ fontFamily: "Inter", fontSize: 12 }}
+            />
+            <Tooltip
+              contentStyle={{
+                fontFamily: "Inter",
+                fontSize: 13,
+                borderRadius: 8,
+                border: "1px solid #E1E5EC",
+              }}
+            />
+            <Bar dataKey="count" fill="#1F9E8E" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}
