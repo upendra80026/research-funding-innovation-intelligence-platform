@@ -15,6 +15,7 @@ from app.crud.publication import (
     get_publications_by_profile,
     get_publication_trend,
     get_emerging_topics,
+    get_research_hotspots,
 )
 from app.crud.patent import create_patent, get_patents_by_profile
 
@@ -88,6 +89,10 @@ def publication_trend(db: Session = Depends(get_db)):
 @router.get("/publications/emerging-topics")
 def emerging_topics(db: Session = Depends(get_db)):
     return get_emerging_topics(db)
+
+@router.get("/publications/research-hotspots")
+def research_hotspots(db: Session = Depends(get_db)):
+    return get_research_hotspots(db)
 
 
 @router.post("/patents", response_model=PatentResponse)

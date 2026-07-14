@@ -100,3 +100,31 @@ def get_emerging_topics(db: Session, top_n: int = 8):
 
     scored_topics.sort(key=lambda t: (t["recent_mentions"], t["status"] == "new"), reverse=True)
     return scored_topics[:top_n]
+
+
+def get_research_hotspots(db: Session, top_n: int = 8):
+    """
+    Identifies the most frequently occurring research keywords across
+    all publications (regardless of year) — representing the most
+    active/popular research areas (hotspots).
+    """
+    publications = db.query(Publication.title).all()
+
+    if not publications:
+        return []
+
+    word_counts = defaultdict(int)
+
+    for (title,) in publications:
+        if not title:
+            continue
+        for word in _extract_words(title):
+            word_counts[word] += 1
+
+    hotspots = [
+        {"topic": word, "mentions": count}
+        for word, count in word_counts.items()
+    ]
+
+    hotspots.sort(key=lambda h: h["mentions"], reverse=True)
+    return hotspots[:top_n]
