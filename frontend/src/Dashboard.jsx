@@ -3,6 +3,9 @@ import axios from "axios";
 import PublicationTrend from "./PublicationTrend";
 import EmergingTopics from "./EmergingTopics";
 import ResearchHotspots from "./ResearchHotspots";
+import PatentTrend from "./PatentTrend";
+import CompetitorAnalysis from "./CompetitorAnalysis";
+import TechnologyClusters from "./TechnologyClusters";
 import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
@@ -101,6 +104,24 @@ function Dashboard({ token, onLogout }) {
           <h3>Research Hotspots</h3>
           <p className="dash-card-subtitle">Most active research areas overall</p>
           <ResearchHotspots />
+        </div>
+
+        <div className="dash-card">
+          <h3>Patent Trend</h3>
+          <p className="dash-card-subtitle">Patent filings over time</p>
+          <PatentTrend />
+        </div>
+
+        <div className="dash-card">
+          <h3>Competitor Analysis</h3>
+          <p className="dash-card-subtitle">Most active patent holders</p>
+          <CompetitorAnalysis />
+        </div>
+
+        <div className="dash-card">
+          <h3>Technology Clusters</h3>
+          <p className="dash-card-subtitle">Innovation mapping from patent titles</p>
+          <TechnologyClusters />
         </div>
 
         <div className="dash-card">

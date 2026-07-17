@@ -17,7 +17,13 @@ from app.crud.publication import (
     get_emerging_topics,
     get_research_hotspots,
 )
-from app.crud.patent import create_patent, get_patents_by_profile
+from app.crud.patent import (
+    create_patent,
+    get_patents_by_profile,
+    get_patent_trend,
+    get_competitor_analysis,
+    get_technology_clusters,
+)
 
 router = APIRouter()
 
@@ -90,6 +96,7 @@ def publication_trend(db: Session = Depends(get_db)):
 def emerging_topics(db: Session = Depends(get_db)):
     return get_emerging_topics(db)
 
+
 @router.get("/publications/research-hotspots")
 def research_hotspots(db: Session = Depends(get_db)):
     return get_research_hotspots(db)
@@ -124,3 +131,18 @@ def list_patents(
         return []
 
     return get_patents_by_profile(db, profile.id)
+
+
+@router.get("/patents/trend")
+def patent_trend(db: Session = Depends(get_db)):
+    return get_patent_trend(db)
+
+
+@router.get("/patents/competitor-analysis")
+def competitor_analysis(db: Session = Depends(get_db)):
+    return get_competitor_analysis(db)
+
+
+@router.get("/patents/technology-clusters")
+def technology_clusters(db: Session = Depends(get_db)):
+    return get_technology_clusters(db)
