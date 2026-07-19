@@ -24,6 +24,7 @@ from app.crud.patent import (
     get_competitor_analysis,
     get_technology_clusters,
 )
+from app.crud.technology import get_technology_intelligence
 
 router = APIRouter()
 
@@ -146,3 +147,8 @@ def competitor_analysis(db: Session = Depends(get_db)):
 @router.get("/patents/technology-clusters")
 def technology_clusters(db: Session = Depends(get_db)):
     return get_technology_clusters(db)
+
+
+@router.get("/technology-intelligence")
+def technology_intelligence(db: Session = Depends(get_db)):
+    return get_technology_intelligence(db)

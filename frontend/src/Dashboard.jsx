@@ -6,6 +6,7 @@ import ResearchHotspots from "./ResearchHotspots";
 import PatentTrend from "./PatentTrend";
 import CompetitorAnalysis from "./CompetitorAnalysis";
 import TechnologyClusters from "./TechnologyClusters";
+import TechnologyIntelligence from "./TechnologyIntelligence";
 import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
@@ -122,6 +123,12 @@ function Dashboard({ token, onLogout }) {
           <h3>Technology Clusters</h3>
           <p className="dash-card-subtitle">Innovation mapping from patent titles</p>
           <TechnologyClusters />
+        </div>
+        
+        <div className="dash-card">
+          <h3>Technology Intelligence</h3>
+          <p className="dash-card-subtitle">Cross-domain technology maturity — research + patents combined</p>
+          <TechnologyIntelligence />
         </div>
 
         <div className="dash-card">
