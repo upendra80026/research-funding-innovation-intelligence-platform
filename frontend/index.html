@@ -1,18 +1,83 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Funding & Innovation Intelligence Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section class="login-page" id="loginPage">
+    <div class="login-hero">
+      <div class="brand-mark large">RF</div>
+      <h1>Research Funding & Innovation Intelligence Platform</h1>
+      <p>Discover funding opportunities, research trends, patent signals, and innovation recommendations from one dashboard.</p>
+      <div class="login-points">
+        <span>Funding discovery</span>
+        <span>Patent analytics</span>
+        <span>Innovation scoring</span>
+      </div>
+    </div>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <form class="login-card" id="loginForm">
+      <h2>Login</h2>
+      <p>Use the demo account to open the Milestone 1 prototype.</p>
 
-    <title>Research Funding & Innovation Intelligence Platform</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" value="siri@example.com" autocomplete="email" required>
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" value="demo123" autocomplete="current-password" required>
+
+      <label for="role">Role</label>
+      <select id="role" name="role">
+        <option>Researcher</option>
+        <option>Startup Founder</option>
+        <option>Innovation Manager</option>
+        <option>Administrator</option>
+      </select>
+
+      <button class="login-button" type="submit">Login to Dashboard</button>
+      <div class="demo-note">Demo login: siri@example.com / demo123</div>
+    </form>
+  </section>
+
+  <div class="app hidden" id="appShell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">RF</div>
+        <div>
+          <strong>Research Funding</strong>
+          <span>Innovation Intelligence</span>
+        </div>
+      </div>
+      <nav>
+        <button class="active" data-view="overview">Overview</button>
+        <button data-view="profile">Research Profile</button>
+        <button data-view="funding">Funding</button>
+        <button data-view="trends">Research Trends</button>
+        <button data-view="patents">Patent Analytics</button>
+        <button data-view="reports">Reports</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Innovation Intelligence Dashboard</h1>
+          <p id="pageSubtitle">Funding discovery, research trend intelligence, patent analytics, and commercialization support.</p>
+        </div>
+        <div class="top-actions">
+          <button id="exportBtn">Export Summary</button>
+          <button class="primary" data-view="profile">Update Profile</button>
+          <button id="logoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
 </html>
