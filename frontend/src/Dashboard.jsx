@@ -7,6 +7,7 @@ import PatentTrend from "./PatentTrend";
 import CompetitorAnalysis from "./CompetitorAnalysis";
 import TechnologyClusters from "./TechnologyClusters";
 import TechnologyIntelligence from "./TechnologyIntelligence";
+import InnovationScore from "./InnovationScore";
 import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
@@ -130,7 +131,11 @@ function Dashboard({ token, onLogout }) {
           <p className="dash-card-subtitle">Cross-domain technology maturity — research + patents combined</p>
           <TechnologyIntelligence />
         </div>
-
+        <div className="dash-card">
+          <h3>Innovation Score</h3>
+          <p className="dash-card-subtitle">Your overall innovation potential, based on research, patents, technology and funding fit</p>
+          <InnovationScore token={token} />
+        </div>
         <div className="dash-card">
           <h3>Recommended Funding</h3>
           <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
