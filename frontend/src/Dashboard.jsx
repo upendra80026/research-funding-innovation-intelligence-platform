@@ -16,6 +16,7 @@ function Dashboard({ token, onLogout }) {
   const [error, setError] = useState("");
   const [funding, setFunding] = useState([]);
   const [fundingError, setFundingError] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -56,6 +57,14 @@ function Dashboard({ token, onLogout }) {
     return role.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "research", label: "Research" },
+    { id: "patents", label: "Patents" },
+    { id: "innovation", label: "Innovation" },
+    { id: "funding", label: "Funding" },
+  ];
+
   return (
     <div className="dash-page">
       {/* NAVBAR */}
@@ -73,100 +82,141 @@ function Dashboard({ token, onLogout }) {
         </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="dash-content">
-        <div className="dash-welcome">
-          <h1>Welcome back{profile ? `, ${profile.email.split("@")[0]}` : ""}</h1>
-          <p>Here's what's happening across your funding, research and patent landscape.</p>
+      <div className="dash-body">
+        {/* SIDEBAR */}
+        <div className="dash-sidebar">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`sidebar-item ${activeTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {error && <p className="dash-error">{error}</p>}
-
-        {profile && (
-          <div className="dash-card">
-            <h3>Your Profile</h3>
-            <p className="dash-card-subtitle">Account details</p>
-            <p><strong>Email:</strong> {profile.email}</p>
-            <p><strong>Role:</strong> {formatRole(profile.role)}</p>
+        {/* MAIN CONTENT */}
+        <div className="dash-main">
+          <div className="dash-welcome">
+            <h1>Welcome back{profile ? `, ${profile.email.split("@")[0]}` : ""}</h1>
+            <p>Here's what's happening across your funding, research and patent landscape.</p>
           </div>
-        )}
 
-        <div className="dash-card">
-          <h3>Publication Trend</h3>
-          <p className="dash-card-subtitle">Your research output over time</p>
-          <PublicationTrend />
-        </div>
+          {error && <p className="dash-error">{error}</p>}
 
-        <div className="dash-card">
-          <h3>Emerging Topics</h3>
-          <p className="dash-card-subtitle">Trending keywords from recent research</p>
-          <EmergingTopics />
-        </div>
+          {/* OVERVIEW TAB */}
+          {activeTab === "overview" && (
+            <>
+              {profile && (
+                <div className="dash-card">
+                  <h3>Your Profile</h3>
+                  <p className="dash-card-subtitle">Account details</p>
+                  <p><strong>Email:</strong> {profile.email}</p>
+                  <p><strong>Role:</strong> {formatRole(profile.role)}</p>
+                </div>
+              )}
 
-        <div className="dash-card">
-          <h3>Research Hotspots</h3>
-          <p className="dash-card-subtitle">Most active research areas overall</p>
-          <ResearchHotspots />
-        </div>
-
-        <div className="dash-card">
-          <h3>Patent Trend</h3>
-          <p className="dash-card-subtitle">Patent filings over time</p>
-          <PatentTrend />
-        </div>
-
-        <div className="dash-card">
-          <h3>Competitor Analysis</h3>
-          <p className="dash-card-subtitle">Most active patent holders</p>
-          <CompetitorAnalysis />
-        </div>
-
-        <div className="dash-card">
-          <h3>Technology Clusters</h3>
-          <p className="dash-card-subtitle">Innovation mapping from patent titles</p>
-          <TechnologyClusters />
-        </div>
-        
-        <div className="dash-card">
-          <h3>Technology Intelligence</h3>
-          <p className="dash-card-subtitle">Cross-domain technology maturity — research + patents combined</p>
-          <TechnologyIntelligence />
-        </div>
-        <div className="dash-card">
-          <h3>Innovation Score</h3>
-          <p className="dash-card-subtitle">Your overall innovation potential, based on research, patents, technology and funding fit</p>
-          <InnovationScore token={token} />
-        </div>
-        <div className="dash-card">
-          <h3>Commercialization Recommendations</h3>
-          <p className="dash-card-subtitle">Actionable next steps based on your innovation profile</p>
-          <CommercializationRecommendations token={token} />
-        </div>
-        <div className="dash-card">
-          <h3>Recommended Funding</h3>
-          <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
-
-          {fundingError && <p className="dash-empty">{fundingError}</p>}
-
-          {!fundingError && funding.length === 0 && (
-            <p className="dash-empty">No matching funding opportunities right now.</p>
+              <div className="dash-card">
+                <h3>Innovation Score</h3>
+                <p className="dash-card-subtitle">Your overall innovation potential, based on research, patents, technology and funding fit</p>
+                <InnovationScore token={token} />
+              </div>
+            </>
           )}
 
-          {funding.length > 0 && (
-            <div className="funding-grid">
-              {funding.map((item) => (
-                <div key={item.id} className="funding-item">
-                  <h4>{item.title}</h4>
-                  <div className="funding-meta">
-                    <span className="funding-tag">{item.source}</span>
-                    <span className="funding-amount">{item.amount}</span>
-                  </div>
-                  <p style={{ fontSize: "13px", color: "var(--slate)" }}>
-                    <strong>Deadline:</strong> {item.deadline}
-                  </p>
-                  <p className="funding-desc">{item.description}</p>
+          {/* RESEARCH TAB */}
+          {activeTab === "research" && (
+            <>
+              <div className="dash-card">
+                <h3>Publication Trend</h3>
+                <p className="dash-card-subtitle">Your research output over time</p>
+                <PublicationTrend />
+              </div>
+
+              <div className="dash-card">
+                <h3>Emerging Topics</h3>
+                <p className="dash-card-subtitle">Trending keywords from recent research</p>
+                <EmergingTopics />
+              </div>
+
+              <div className="dash-card">
+                <h3>Research Hotspots</h3>
+                <p className="dash-card-subtitle">Most active research areas overall</p>
+                <ResearchHotspots />
+              </div>
+            </>
+          )}
+
+          {/* PATENTS TAB */}
+          {activeTab === "patents" && (
+            <>
+              <div className="dash-card">
+                <h3>Patent Trend</h3>
+                <p className="dash-card-subtitle">Patent filings over time</p>
+                <PatentTrend />
+              </div>
+
+              <div className="dash-card">
+                <h3>Competitor Analysis</h3>
+                <p className="dash-card-subtitle">Most active patent holders</p>
+                <CompetitorAnalysis />
+              </div>
+
+              <div className="dash-card">
+                <h3>Technology Clusters</h3>
+                <p className="dash-card-subtitle">Innovation mapping from patent titles</p>
+                <TechnologyClusters />
+              </div>
+            </>
+          )}
+
+          {/* INNOVATION TAB */}
+          {activeTab === "innovation" && (
+            <>
+              <div className="dash-card">
+                <h3>Technology Intelligence</h3>
+                <p className="dash-card-subtitle">Cross-domain technology maturity — research + patents combined</p>
+                <TechnologyIntelligence />
+              </div>
+
+              <div className="dash-card">
+                <h3>Commercialization Recommendations</h3>
+                <p className="dash-card-subtitle">Actionable next steps based on your innovation profile</p>
+                <CommercializationRecommendations token={token} />
+              </div>
+            </>
+          )}
+
+          {/* FUNDING TAB */}
+          {activeTab === "funding" && (
+            <div className="dash-card">
+              <h3>Recommended Funding</h3>
+              <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
+
+              {fundingError && <p className="dash-empty">{fundingError}</p>}
+
+              {!fundingError && funding.length === 0 && (
+                <p className="dash-empty">No matching funding opportunities right now.</p>
+              )}
+
+              {funding.length > 0 && (
+                <div className="funding-grid">
+                  {funding.map((item) => (
+                    <div key={item.id} className="funding-item">
+                      <h4>{item.title}</h4>
+                      <div className="funding-meta">
+                        <span className="funding-tag">{item.source}</span>
+                        <span className="funding-amount">{item.amount}</span>
+                      </div>
+                      <p style={{ fontSize: "13px", color: "var(--slate)" }}>
+                        <strong>Deadline:</strong> {item.deadline}
+                      </p>
+                      <p className="funding-desc">{item.description}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>

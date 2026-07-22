@@ -492,3 +492,50 @@
   line-height: 1.6;
   margin: 0;
 }
+/* ===== SIDEBAR LAYOUT ===== */
+.dash-body {
+  display: flex;
+  min-height: calc(100vh - 64px);
+}
+
+.dash-sidebar {
+  width: 220px;
+  background: var(--paper-white);
+  border-right: 1px solid var(--border-light);
+  padding: 24px 0;
+  flex-shrink: 0;
+}
+
+.sidebar-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 24px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slate);
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-item:hover {
+  background: var(--paper);
+  color: var(--ink-navy);
+}
+
+.sidebar-item.active {
+  background: var(--signal-teal-light);
+  color: var(--signal-teal);
+  border-left-color: var(--signal-teal);
+  font-weight: 600;
+}
+
+.dash-main {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
