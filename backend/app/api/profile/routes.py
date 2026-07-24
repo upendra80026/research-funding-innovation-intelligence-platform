@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+import requests
 
 from app.db.database import get_db
 from app.schemas.research_profile import ResearchProfileCreate, ResearchProfileResponse
@@ -27,6 +28,7 @@ from app.crud.patent import (
 from app.crud.technology import get_technology_intelligence
 from app.crud.innovation import get_innovation_score
 from app.crud.commercialization import get_commercialization_recommendations
+from app.services.openalex_service import search_author, extract_publications
 
 router = APIRouter()
 
@@ -184,3 +186,64 @@ def commercialization_recommendations(
         raise HTTPException(status_code=404, detail="Create your research profile first")
 
     return get_commercialization_recommendations(db, profile)
+
+
+# ---------------- OpenAlex Integration ----------------
+
+@router.get("/openalex/search-author")
+def openalex_search_author(
+    name: str,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        authors = search_author(name)
+        return {"count": len(authors), "authors": authors}
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach OpenAlex: {e}")
+
+
+@router.get("/openalex/author-publications")
+def openalex_author_publications(
+    author_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    try:
+        publications = extract_publications(author_id)
+        return {"count": len(publications), "publications": publications}
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach OpenAlex: {e}")
+
+
+@router.post("/openalex/import-publications")
+def openalex_import_publications(
+    author_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    user_email = current_user.get("sub")
+    db_user = get_user_by_email(db, user_email)
+    profile = get_profile_by_user_id(db, db_user.id)
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Create your research profile first")
+
+    try:
+        publications = extract_publications(author_id)
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach OpenAlex: {e}")
+
+    imported = 0
+    for item in publications:
+        if not item.get("title"):
+            continue
+        pub_data = PublicationCreate(
+            title=item["title"],
+            authors=item.get("authors"),
+            year=item.get("year"),
+            source=item.get("source"),
+            link=item.get("link"),
+        )
+        create_publication(db, profile.id, pub_data)
+        imported += 1
+
+    return {"imported": imported, "total": len(publications)}

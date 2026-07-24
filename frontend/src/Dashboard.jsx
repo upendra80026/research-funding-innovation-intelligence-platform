@@ -9,6 +9,8 @@ import TechnologyClusters from "./TechnologyClusters";
 import TechnologyIntelligence from "./TechnologyIntelligence";
 import InnovationScore from "./InnovationScore";
 import CommercializationRecommendations from "./CommercializationRecommendations";
+import ResearchProfileForm from "./ResearchProfileForm";
+import LiveGrantsSearch from "./LiveGrantsSearch";
 import "./Dashboard.css";
 
 function Dashboard({ token, onLogout }) {
@@ -17,6 +19,9 @@ function Dashboard({ token, onLogout }) {
   const [funding, setFunding] = useState([]);
   const [fundingError, setFundingError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [allFunding, setAllFunding] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [profileDomains, setProfileDomains] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,24 +38,90 @@ function Dashboard({ token, onLogout }) {
     fetchProfile();
   }, [token]);
 
+  const fetchFunding = async () => {
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/funding/recommended", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFunding(response.data);
+      setFundingError("");
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setFundingError("Create your research profile to see recommendations.");
+      } else {
+        setFundingError("Could not load funding recommendations.");
+      }
+    }
+  };
+
   useEffect(() => {
-    const fetchFunding = async () => {
+    fetchFunding();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  useEffect(() => {
+    const fetchAllFunding = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/funding/recommended", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFunding(response.data);
+        const response = await axios.get("http://127.0.0.1:8000/api/funding/");
+        setAllFunding(response.data);
       } catch (err) {
-        if (err.response && err.response.status === 404) {
-          setFundingError("Create your research profile to see recommendations.");
-        } else {
-          setFundingError("Could not load funding recommendations.");
-        }
+        setAllFunding([]);
       }
     };
-
-    fetchFunding();
+    fetchAllFunding();
   }, [token]);
+
+  useEffect(() => {
+    const fetchProfileDomains = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/profile/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProfileDomains(response.data.research_domains || "");
+      } catch (err) {
+        setProfileDomains("");
+      }
+    };
+    fetchProfileDomains();
+  }, [token, funding]);
+
+  const getMatchInfo = (fundingItem) => {
+    if (!profileDomains || !fundingItem.domains) return null;
+    const userKw = profileDomains
+      .split(",")
+      .map((k) => k.trim().toLowerCase())
+      .filter(Boolean);
+    const fundKw = fundingItem.domains
+      .split(",")
+      .map((k) => k.trim().toLowerCase())
+      .filter(Boolean);
+    if (userKw.length === 0 || fundKw.length === 0) return null;
+
+    const overlap = fundKw.filter((k) => userKw.includes(k)).length;
+    const percent = Math.round((overlap / fundKw.length) * 100);
+
+    let label = "Low Match";
+    let color = "#9CA3AF";
+    if (percent >= 70) {
+      label = "Strong Match";
+      color = "#1C8C7A";
+    } else if (percent >= 35) {
+      label = "Moderate Match";
+      color = "#C9862B";
+    }
+    return { percent, label, color };
+  };
+
+  const filteredFunding = allFunding.filter((item) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      (item.title && item.title.toLowerCase().includes(term)) ||
+      (item.domains && item.domains.toLowerCase().includes(term)) ||
+      (item.source && item.source.toLowerCase().includes(term)) ||
+      (item.description && item.description.toLowerCase().includes(term))
+    );
+  });
 
   const formatRole = (role) => {
     if (!role) return "";
@@ -67,7 +138,6 @@ function Dashboard({ token, onLogout }) {
 
   return (
     <div className="dash-page">
-      {/* NAVBAR */}
       <div className="dash-navbar">
         <div className="dash-brand">
           Research Funding &amp; <span className="highlight">Innovation Intelligence</span>
@@ -83,7 +153,6 @@ function Dashboard({ token, onLogout }) {
       </div>
 
       <div className="dash-body">
-        {/* SIDEBAR */}
         <div className="dash-sidebar">
           {tabs.map((tab) => (
             <button
@@ -96,7 +165,6 @@ function Dashboard({ token, onLogout }) {
           ))}
         </div>
 
-        {/* MAIN CONTENT */}
         <div className="dash-main">
           <div className="dash-welcome">
             <h1>Welcome back{profile ? `, ${profile.email.split("@")[0]}` : ""}</h1>
@@ -105,7 +173,6 @@ function Dashboard({ token, onLogout }) {
 
           {error && <p className="dash-error">{error}</p>}
 
-          {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <>
               {profile && (
@@ -125,9 +192,10 @@ function Dashboard({ token, onLogout }) {
             </>
           )}
 
-          {/* RESEARCH TAB */}
           {activeTab === "research" && (
             <>
+              <ResearchProfileForm token={token} onProfileSaved={fetchFunding} />
+
               <div className="dash-card">
                 <h3>Publication Trend</h3>
                 <p className="dash-card-subtitle">Your research output over time</p>
@@ -148,7 +216,6 @@ function Dashboard({ token, onLogout }) {
             </>
           )}
 
-          {/* PATENTS TAB */}
           {activeTab === "patents" && (
             <>
               <div className="dash-card">
@@ -171,7 +238,6 @@ function Dashboard({ token, onLogout }) {
             </>
           )}
 
-          {/* INNOVATION TAB */}
           {activeTab === "innovation" && (
             <>
               <div className="dash-card">
@@ -188,36 +254,126 @@ function Dashboard({ token, onLogout }) {
             </>
           )}
 
-          {/* FUNDING TAB */}
           {activeTab === "funding" && (
-            <div className="dash-card">
-              <h3>Recommended Funding</h3>
-              <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
+            <>
+              <div className="dash-card">
+                <h3>Search Real US Federal Grants</h3>
+                <p className="dash-card-subtitle">Live search from Grants.gov — the official U.S. government grants database</p>
+                <LiveGrantsSearch token={token} />
+              </div>
 
-              {fundingError && <p className="dash-empty">{fundingError}</p>}
+              <div className="dash-card">
+                <h3>Search Funding Opportunities</h3>
+                <p className="dash-card-subtitle">
+                  Search all available funding opportunities by keyword (e.g. AI, Blockchain, Security)
+                </p>
+                <input
+                  type="text"
+                  placeholder="Search by keyword... e.g. AI"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    marginTop: "6px",
+                    marginBottom: "14px",
+                    border: "1px solid #d7dce3",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                    boxSizing: "border-box",
+                  }}
+                />
 
-              {!fundingError && funding.length === 0 && (
-                <p className="dash-empty">No matching funding opportunities right now.</p>
-              )}
+                {searchTerm.trim() && filteredFunding.length === 0 && (
+                  <p className="dash-empty">No funding opportunities match "{searchTerm}".</p>
+                )}
 
-              {funding.length > 0 && (
-                <div className="funding-grid">
-                  {funding.map((item) => (
-                    <div key={item.id} className="funding-item">
-                      <h4>{item.title}</h4>
-                      <div className="funding-meta">
-                        <span className="funding-tag">{item.source}</span>
-                        <span className="funding-amount">{item.amount}</span>
-                      </div>
-                      <p style={{ fontSize: "13px", color: "var(--slate)" }}>
-                        <strong>Deadline:</strong> {item.deadline}
-                      </p>
-                      <p className="funding-desc">{item.description}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                {searchTerm.trim() && filteredFunding.length > 0 && (
+                  <div className="funding-grid">
+                    {filteredFunding.map((item) => {
+                      const match = getMatchInfo(item);
+                      return (
+                        <div key={item.id} className="funding-item">
+                          {match && (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: match.color,
+                                color: "#fff",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                padding: "3px 9px",
+                                borderRadius: "12px",
+                                marginBottom: "6px",
+                              }}
+                            >
+                              {match.label} · {match.percent}%
+                            </span>
+                          )}
+                          <h4>{item.title}</h4>
+                          <div className="funding-meta">
+                            <span className="funding-tag">{item.source}</span>
+                            <span className="funding-amount">{item.amount}</span>
+                          </div>
+                          <p style={{ fontSize: "13px", color: "var(--slate)" }}>
+                            <strong>Deadline:</strong> {item.deadline}
+                          </p>
+                          <p className="funding-desc">{item.description}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="dash-card">
+                <h3>Recommended Funding</h3>
+                <p className="dash-card-subtitle">Opportunities matched to your research profile</p>
+
+                {fundingError && <p className="dash-empty">{fundingError}</p>}
+
+                {!fundingError && funding.length === 0 && (
+                  <p className="dash-empty">No matching funding opportunities right now.</p>
+                )}
+
+                {funding.length > 0 && (
+                  <div className="funding-grid">
+                    {funding.map((item) => {
+                      const match = getMatchInfo(item);
+                      return (
+                        <div key={item.id} className="funding-item">
+                          {match && (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                background: match.color,
+                                color: "#fff",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                padding: "3px 9px",
+                                borderRadius: "12px",
+                                marginBottom: "6px",
+                              }}
+                            >
+                              {match.label} · {match.percent}%
+                            </span>
+                          )}
+                          <h4>{item.title}</h4>
+                          <div className="funding-meta">
+                            <span className="funding-tag">{item.source}</span>
+                            <span className="funding-amount">{item.amount}</span>
+                          </div>
+                          <p style={{ fontSize: "13px", color: "var(--slate)" }}>
+                            <strong>Deadline:</strong> {item.deadline}
+                          </p>
+                          <p className="funding-desc">{item.description}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

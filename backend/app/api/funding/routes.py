@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.db.database import get_db
 from app.schemas.funding import FundingCreate, FundingResponse
@@ -9,6 +9,8 @@ from app.crud.funding import (
     get_all_funding,
     get_funding_by_id,
     get_recommended_funding,
+    search_funding,
+    search_grants_gov,
 )
 from app.core.security import get_current_user, require_role
 from app.crud.user import get_user_by_email
@@ -44,6 +46,24 @@ def recommended_funding(
         raise HTTPException(status_code=404, detail="Create your research profile first")
 
     return get_recommended_funding(db, profile.research_domains, db_user.role)
+
+
+@router.get("/search", response_model=List[FundingResponse])
+def search_funding_opportunities(
+    query: Optional[str] = None,
+    domain: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    keyword = query or domain or ""
+    return search_funding(db, keyword)
+
+
+@router.get("/search-live")
+def search_live_grants(
+    keyword: str,
+    current_user: dict = Depends(get_current_user),
+):
+    return search_grants_gov(keyword)
 
 
 @router.get("/{funding_id}", response_model=FundingResponse)

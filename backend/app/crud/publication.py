@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 
+import requests as http_requests
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.publication import Publication
@@ -128,3 +129,41 @@ def get_research_hotspots(db: Session, top_n: int = 8):
 
     hotspots.sort(key=lambda h: h["mentions"], reverse=True)
     return hotspots[:top_n]
+
+
+def search_openalex(query: str, limit: int = 10):
+    """
+    Live search against the OpenAlex API for real research publications
+    matching the given query.
+    """
+    try:
+        response = http_requests.get(
+            "https://api.openalex.org/works",
+            params={"search": query, "per-page": limit, "sort": "publication_date:desc"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        works = response.json().get("results", [])
+    except Exception:
+        return []
+
+    results = []
+    for work in works:
+        title = work.get("title")
+        year = str(work.get("publication_year", ""))
+        venue = work.get("host_venue", {}).get("display_name") or "Unknown Source"
+        authorships = work.get("authorships", [])
+        first_author = authorships[0]["author"]["display_name"] if authorships else "Unknown"
+
+        if not title:
+            continue
+
+        results.append({
+            "title": title,
+            "authors": first_author,
+            "year": year,
+            "source": venue,
+            "link": work.get("id", ""),
+        })
+
+    return results

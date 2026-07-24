@@ -35,4 +35,4 @@ def create_or_update_profile(db: Session, user_id: int, profile_data: ResearchPr
     db.add(new_profile)
     db.commit()
     db.refresh(new_profile)
-    return new_profile
+    return new_profile 
