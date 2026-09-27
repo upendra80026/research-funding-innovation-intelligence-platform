@@ -44,6 +44,7 @@ function Dashboard({ token, onLogout }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [profileDomains, setProfileDomains] = useState("");
   const [openGroups, setOpenGroups] = useState(["workspace", "research-group", "patents-group", "insights-group", "collaboration-group", "startup-group"]);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -466,11 +467,25 @@ function Dashboard({ token, onLogout }) {
 
   const handleItemClick = (groupId, itemId) => {
     setActiveTab(itemId);
+    setMobileNavOpen(false);
   };
 
   return (
     <div className="dash-page">
       <div className="dash-navbar">
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileNavOpen((prev) => !prev)}
+          aria-label="Toggle navigation"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+            {mobileNavOpen ? (
+              <path d="M18 6L6 18M6 6l12 12" />
+            ) : (
+              <path d="M3 6h18M3 12h18M3 18h18" />
+            )}
+          </svg>
+        </button>
         <div className="dash-brand">
           Research Funding &amp; <span className="highlight">Innovation Intelligence</span>
         </div>
@@ -485,8 +500,12 @@ function Dashboard({ token, onLogout }) {
         </div>
       </div>
 
+      {mobileNavOpen && (
+        <div className="mobile-nav-backdrop" onClick={() => setMobileNavOpen(false)} />
+      )}
+
       <div className="dash-body">
-        <div className="dash-sidebar">
+        <div className={`dash-sidebar ${mobileNavOpen ? "mobile-open" : ""}`}>
           <div className="sidebar-groups-wrap">
             {tabGroups.map((group) => {
               const isOpen = openGroups.includes(group.id);
