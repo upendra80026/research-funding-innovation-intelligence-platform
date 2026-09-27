@@ -996,31 +996,102 @@
   color: var(--slate);
 }
 
+/* ===== MOBILE NAV TOGGLE (hidden on desktop) ===== */
+.mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  margin-right: 12px;
+}
+
+.mobile-nav-backdrop {
+  display: none;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-  .dash-body {
-    flex-direction: column;
+  .dash-navbar {
+    padding: 14px 16px;
   }
 
-  .dash-sidebar {
-    width: 100%;
-    min-height: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 16px;
+  .mobile-nav-toggle {
+    display: flex;
   }
 
-  .sidebar-groups-wrap {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .dash-brand {
+    font-size: 14px;
+    flex: 1;
+    min-width: 0;
   }
 
-  .sidebar-footer {
+  .dash-nav-right {
+    gap: 8px;
+  }
+
+  .dash-role-badge {
     display: none;
   }
 
+  .dash-logout {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .dash-body {
+    flex-direction: column;
+    min-height: calc(100vh - 60px);
+    position: relative;
+  }
+
+  .mobile-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+
+  .dash-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 78%;
+    max-width: 300px;
+    min-height: 100vh;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: 20px 14px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 50;
+    overflow-y: auto;
+  }
+
+  .dash-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar-groups-wrap {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .sidebar-footer {
+    display: flex;
+  }
+
   .dash-main {
-    padding: 24px;
+    padding: 20px;
+    width: 100%;
   }
 
   .score-hero {
@@ -1030,13 +1101,12 @@
 
 @media (max-width: 640px) {
   .dash-navbar {
-    padding: 14px 20px;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 12px 14px;
+    gap: 8px;
   }
 
   .dash-brand {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .dash-main {
@@ -1044,7 +1114,7 @@
   }
 
   .dash-welcome h1 {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .dash-card {
@@ -1426,5 +1496,24 @@
   30% {
     transform: translateY(-5px);
     opacity: 1;
+  }
+}
+
+/* ===== AI FAB — keep clear of mobile bottom nav / safe areas ===== */
+@media (max-width: 1024px) {
+  .ai-fab {
+    bottom: 20px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .ai-panel {
+    bottom: 84px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    height: 70vh;
   }
 }
